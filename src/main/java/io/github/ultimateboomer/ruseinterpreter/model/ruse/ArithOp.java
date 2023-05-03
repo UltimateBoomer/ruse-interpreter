@@ -2,7 +2,7 @@ package io.github.ultimateboomer.ruseinterpreter.model.ruse;
 
 import java.util.function.BiFunction;
 
-public enum AOp implements BiFunction<Num, Num, Num> {
+public enum ArithOp implements BiFunction<Num, Num, Num> {
 
     ADD {
         @Override

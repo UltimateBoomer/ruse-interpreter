@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.AOp;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.ArithBin;
+import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
 import io.github.ultimateboomer.ruseinterpreter.model.ruse.Num;
 
 @SpringBootTest
@@ -29,28 +28,32 @@ class ApplicationTests {
     }
 
     @Test
-    void interpRuseApi(@Autowired MockMvc mvc) throws Exception {
-        String t0 = objectMapper.writeValueAsString(new Num(5));
-        
-        mvc.perform(post("/api/interp/ruse")
-            .content(t0)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(t0));
+    void testInterpRuseApi(@Autowired MockMvc mvc) throws Exception {
+        String t, tr;
 
-        String t1 = objectMapper.writeValueAsString(
-            new ArithBin(AOp.ADD, 
-                new ArithBin(AOp.MUL, 
-                    new Num(3), 
-                    new Num(4)), 
-                new Num(3)));
-        String t1r = objectMapper.writeValueAsString(new Num(15));
-        
+        t = objectMapper.writeValueAsString(new InterpRequest("5"));
+        tr = objectMapper.writeValueAsString(new Num(5));
         mvc.perform(post("/api/interp/ruse")
-            .content(t1)
+            .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(t1r));
+            .andExpect(content().string(tr));
+
+        t = objectMapper.writeValueAsString(new InterpRequest("(+ 1 2)"));
+        tr = objectMapper.writeValueAsString(new Num(3));
+        mvc.perform(post("/api/interp/ruse")
+            .content(t)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(tr));
+
+        t = objectMapper.writeValueAsString(new InterpRequest("(+ (* 2 3) 4)"));
+        tr = objectMapper.writeValueAsString(new Num(10));
+        mvc.perform(post("/api/interp/ruse")
+            .content(t)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(tr));
     }
 
 }

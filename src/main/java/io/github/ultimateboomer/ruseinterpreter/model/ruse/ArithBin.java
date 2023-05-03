@@ -1,7 +1,7 @@
 package io.github.ultimateboomer.ruseinterpreter.model.ruse;
 
 public record ArithBin(
-    AOp op,
+    ArithOp op,
     ArithExp left,
     ArithExp right
 ) implements ArithExp {
