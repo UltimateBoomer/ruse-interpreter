@@ -5,7 +5,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.ruse.Num;
 import io.github.ultimateboomer.ruseinterpreter.model.ruse.RuseAbstractSyntax;
 
 public class RuseInterpreter {
-    
+
     public RuseAbstractSyntax interp(RuseAbstractSyntax exp) {
         if (exp instanceof Num) {
             return exp;
