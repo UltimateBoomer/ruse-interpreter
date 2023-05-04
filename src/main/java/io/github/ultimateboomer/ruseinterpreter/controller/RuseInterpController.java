@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.github.ultimateboomer.ruseinterpreter.impl.RuseInterpreter;
 import io.github.ultimateboomer.ruseinterpreter.impl.SExpParser;
 import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
+import io.github.ultimateboomer.ruseinterpreter.model.InterpResponse;
 import io.github.ultimateboomer.ruseinterpreter.model.ruse.RuseAbstractSyntax;
-import io.github.ultimateboomer.ruseinterpreter.model.sexp.InterpResponse;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 
 @RestController

@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
+import io.github.ultimateboomer.ruseinterpreter.model.InterpResponse;
 import io.github.ultimateboomer.ruseinterpreter.model.ruse.Num;
-import io.github.ultimateboomer.ruseinterpreter.model.sexp.InterpResponse;
 
 @SpringBootTest
 @AutoConfigureMockMvc
