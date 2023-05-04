@@ -3,6 +3,8 @@ package io.github.ultimateboomer.ruseinterpreter.model.ruse;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
+
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -14,4 +16,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public interface RuseAbstractSyntax {
     
+    SExp toSExp();
+
 }

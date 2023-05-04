@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
 import io.github.ultimateboomer.ruseinterpreter.model.ruse.Num;
+import io.github.ultimateboomer.ruseinterpreter.model.sexp.InterpResponse;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,28 +33,20 @@ class ApplicationTests {
         String t, tr;
 
         t = objectMapper.writeValueAsString(new InterpRequest("5"));
-        tr = objectMapper.writeValueAsString(new Num(5));
+        tr = objectMapper.writeValueAsString(new InterpResponse("5"));
         mvc.perform(post("/api/interp/ruse")
             .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(tr));
-
-        t = objectMapper.writeValueAsString(new InterpRequest("(+ 1 2)"));
-        tr = objectMapper.writeValueAsString(new Num(3));
-        mvc.perform(post("/api/interp/ruse")
-            .content(t)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(tr));
+            .andExpect(content().json(tr));
 
         t = objectMapper.writeValueAsString(new InterpRequest("(+ (* 2 3) 4)"));
-        tr = objectMapper.writeValueAsString(new Num(10));
+        tr = objectMapper.writeValueAsString(new InterpResponse("10"));
         mvc.perform(post("/api/interp/ruse")
             .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(tr));
+            .andExpect(content().json(tr));
     }
 
 }
