@@ -1,0 +1,5 @@
+- Front end UI
+- All features of Faux Racket
+- Support for other LISP-like languages
+- One-step interpreting
+- DB to track all requests
