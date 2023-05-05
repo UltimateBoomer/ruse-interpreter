@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
 import io.github.ultimateboomer.ruseinterpreter.model.InterpResponse;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.Num;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,7 +33,7 @@ class ApplicationTests {
 
         t = objectMapper.writeValueAsString(new InterpRequest("5"));
         tr = objectMapper.writeValueAsString(new InterpResponse("5"));
-        mvc.perform(post("/api/interp/ruse")
+        mvc.perform(post("/api/ruse")
             .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -42,7 +41,7 @@ class ApplicationTests {
 
         t = objectMapper.writeValueAsString(new InterpRequest("(+ (* 2 3) 4)"));
         tr = objectMapper.writeValueAsString(new InterpResponse("10"));
-        mvc.perform(post("/api/interp/ruse")
+        mvc.perform(post("/api/ruse")
             .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

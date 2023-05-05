@@ -15,7 +15,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.ruse.RuseAbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 
 @RestController
-@RequestMapping("/api/interp")
+@RequestMapping("/api")
 public class RuseInterpController {
 
     @PostMapping("/ruse")
