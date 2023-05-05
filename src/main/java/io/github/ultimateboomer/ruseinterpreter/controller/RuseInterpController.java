@@ -21,10 +21,23 @@ public class RuseInterpController {
     @PostMapping("/ruse")
     @ResponseStatus(HttpStatus.OK)
     public InterpResponse interpRuse(@RequestBody InterpRequest data) {
-        SExp exp = SExpParser.parse(data.exp());
-        RuseAbstractSyntax result = RuseInterpreter.parse(exp);
-        result = RuseInterpreter.interp(result);
-        return new InterpResponse(result.toSExp().toString());
+        try {
+            SExp exp = SExpParser.parse(data.exp());
+            RuseAbstractSyntax result = RuseInterpreter.parse(exp);
+            result = RuseInterpreter.interp(result);
+            return new InterpResponse(result.toSExp().toString());
+        } catch (IllegalArgumentException e) {
+            throw new InterpException(e);
+        }
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class InterpException extends RuntimeException {
+        
+        public InterpException(Throwable e) {
+            super("Encountered an error in interp", e);
+        }
+
     }
 
 }
