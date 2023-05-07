@@ -1,4 +1,4 @@
-package io.github.ultimateboomer.ruseinterpreter.model.ruse;
+package io.github.ultimateboomer.ruseinterpreter.model.fauxracket;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -14,7 +14,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
     @JsonSubTypes.Type(value = Num.class, name = "num"),
     @JsonSubTypes.Type(value = ArithBin.class, name = "abin")
 })
-public interface RuseAbstractSyntax {
+public interface FauxRacketAbstractSyntax {
     
     SExp toSExp();
 

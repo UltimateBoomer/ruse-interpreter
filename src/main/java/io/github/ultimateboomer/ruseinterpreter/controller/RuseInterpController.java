@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.github.ultimateboomer.ruseinterpreter.impl.RuseInterpreter;
+import io.github.ultimateboomer.ruseinterpreter.impl.FauxRacketInterpreter;
 import io.github.ultimateboomer.ruseinterpreter.impl.SExpParser;
 import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
 import io.github.ultimateboomer.ruseinterpreter.model.InterpResponse;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.RuseAbstractSyntax;
+import io.github.ultimateboomer.ruseinterpreter.model.RuseLanguage;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.FauxRacketAbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 
 @RestController
@@ -23,9 +24,13 @@ public class RuseInterpController {
     public InterpResponse interpRuse(@RequestBody InterpRequest data) {
         try {
             SExp exp = SExpParser.parse(data.exp());
-            RuseAbstractSyntax result = RuseInterpreter.parse(exp);
-            result = RuseInterpreter.interp(result);
-            return new InterpResponse(result.toSExp().toString());
+            if (data.lang() == RuseLanguage.FAUX_RACKET) {
+                FauxRacketAbstractSyntax result = FauxRacketInterpreter.parse(exp);
+                result = FauxRacketInterpreter.interp(result);
+                return new InterpResponse(result.toSExp().toString());
+            } else {
+                throw new InterpException("Invalid language");
+            }
         } catch (IllegalArgumentException e) {
             throw new InterpException(e);
         }
@@ -33,9 +38,13 @@ public class RuseInterpController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public static class InterpException extends RuntimeException {
+
+        public InterpException(String message) {
+            super(message);
+        }
         
         public InterpException(Throwable e) {
-            super("Encountered an error in interp", e);
+            super(e);
         }
 
     }

@@ -2,16 +2,16 @@ package io.github.ultimateboomer.ruseinterpreter.impl;
 
 import java.util.Map;
 
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.ArithBin;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.ArithExp;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.ArithOp;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.Num;
-import io.github.ultimateboomer.ruseinterpreter.model.ruse.RuseAbstractSyntax;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBin;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithExp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithOp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.FauxRacketAbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
-public class RuseInterpreter {
+public class FauxRacketInterpreter {
 
     private static final Map<String, ArithOp> arithOpMap = Map.of(
         "+", ArithOp.ADD,
@@ -19,7 +19,7 @@ public class RuseInterpreter {
         "*", ArithOp.MUL,
         "/", ArithOp.DIV);
 
-    public static RuseAbstractSyntax parse(SExp exp) {
+    public static FauxRacketAbstractSyntax parse(SExp exp) {
         if (exp instanceof Atom) {
             return new Num(Integer.parseInt(((Atom) exp).value()));
         } else if (exp instanceof SList) {
@@ -29,7 +29,7 @@ public class RuseInterpreter {
         }
     }
 
-    private static RuseAbstractSyntax parseSList(SList list) {
+    private static FauxRacketAbstractSyntax parseSList(SList list) {
         if (list.exps().isEmpty()) {
             throw new IllegalArgumentException("SList is empty");
         }
@@ -44,7 +44,7 @@ public class RuseInterpreter {
         }
     }
 
-    public static RuseAbstractSyntax interp(RuseAbstractSyntax exp) {
+    public static FauxRacketAbstractSyntax interp(FauxRacketAbstractSyntax exp) {
         if (exp instanceof Num) {
             return exp;
         } else if (exp instanceof ArithBin) {

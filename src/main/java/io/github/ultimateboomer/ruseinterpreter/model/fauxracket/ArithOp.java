@@ -1,4 +1,4 @@
-package io.github.ultimateboomer.ruseinterpreter.model.ruse;
+package io.github.ultimateboomer.ruseinterpreter.model.fauxracket;
 
 import java.util.function.BiFunction;
 
