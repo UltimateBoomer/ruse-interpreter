@@ -1,6 +1,9 @@
 package io.github.ultimateboomer.ruseinterpreter.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,10 +19,15 @@ import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.FauxRacketAbstr
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/ruse")
 public class RuseInterpController {
 
-    @PostMapping("/ruse")
+    @GetMapping("/langs")
+    public RuseLanguage[] getLanguages() {
+        return RuseLanguage.values();
+    }
+
+    @PostMapping("/interp")
     @ResponseStatus(HttpStatus.OK)
     public InterpResponse interpRuse(@RequestBody InterpRequest data) {
         try {

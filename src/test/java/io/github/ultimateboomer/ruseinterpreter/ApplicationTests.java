@@ -34,7 +34,7 @@ class ApplicationTests {
 
         t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "5"));
         tr = objectMapper.writeValueAsString(new InterpResponse("5"));
-        mvc.perform(post("/api/ruse")
+        mvc.perform(post("/api/ruse/interp")
             .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -42,7 +42,7 @@ class ApplicationTests {
 
         t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "(+ (* 2 3) 4)"));
         tr = objectMapper.writeValueAsString(new InterpResponse("10"));
-        mvc.perform(post("/api/ruse")
+        mvc.perform(post("/api/ruse/interp")
             .content(t)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
