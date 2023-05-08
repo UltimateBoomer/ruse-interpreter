@@ -13,10 +13,10 @@ import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
-public class RuseInterpreterTests {
+class RuseInterpreterTests {
     
     @Test
-    public void testParse() {
+    void testParse() {
         assertEquals(new Num(3), FauxRacketInterpreter.parse(new Atom("3")));
 
         assertEquals(new ArithBin(ArithOp.ADD, new Num(1), new Num(2)), FauxRacketInterpreter.parse(new SList(
@@ -35,7 +35,7 @@ public class RuseInterpreterTests {
     }
 
     @Test
-    public void testInterp() {
+    void testInterp() {
         assertEquals(new Num(3), FauxRacketInterpreter.interp(new Num(3)));
 
         assertEquals(new Num(3), FauxRacketInterpreter.interp(new ArithBin(ArithOp.ADD, new Num(1), new Num(2))));

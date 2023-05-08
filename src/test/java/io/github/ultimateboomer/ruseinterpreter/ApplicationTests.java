@@ -1,8 +1,11 @@
 package io.github.ultimateboomer.ruseinterpreter;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +27,9 @@ class ApplicationTests {
     ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @Test
-    void contextLoads() {
-
+    void testGetLanguages(@Autowired MockMvc mvc) throws Exception {
+        mvc.perform(get("/api/ruse/langs"))
+            .andExpect(content().json(objectMapper.writeValueAsString(List.of(RuseLanguage.values()))));
     }
 
     @Test

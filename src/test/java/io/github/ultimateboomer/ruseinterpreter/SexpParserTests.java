@@ -10,10 +10,10 @@ import io.github.ultimateboomer.ruseinterpreter.impl.SExpParser;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
-public class SexpParserTests {
+class SexpParserTests {
     
     @Test
-    public void testParse() {
+    void testParse() {
         assertEquals(new Atom("5"), SExpParser.parse("5"));
 
         assertEquals(new SList(Arrays.asList(
@@ -26,7 +26,7 @@ public class SexpParserTests {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("5", new Atom("5").toString());
 
         assertEquals("(a (b c) d)",
