@@ -53,13 +53,4 @@ public class SExpParser {
         return !Character.isWhitespace(c) && c != '(' && c != ')';
     }
 
-    // private static Atom flushBuilder(Deque<SList> context, StringBuilder builder) {
-    //     Atom result = new Atom(builder.toString());
-    //     builder.setLength(0);
-    //     if (!context.isEmpty()) {
-    //         context.getLast().exps().add(result);
-    //     }
-    //     return result;
-    // }
-
 }
