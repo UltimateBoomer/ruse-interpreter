@@ -21,17 +21,21 @@ public class FauxRacketInterpreter {
 
     public static FauxRacketAbstractSyntax parse(SExp exp) {
         if (exp instanceof Atom) {
-            return new Num(Integer.parseInt(((Atom) exp).value()));
+            try {
+                return new Num(Integer.parseInt(((Atom) exp).value()));
+            } catch (NumberFormatException e) {
+                throw new InterpException("Error parsing number");
+            }
         } else if (exp instanceof SList) {
             return parseSList((SList) exp);
         } else {
-            throw new IllegalArgumentException("Invalid syntax");
+            throw new InterpException("Invalid syntax");
         }
     }
 
     private static FauxRacketAbstractSyntax parseSList(SList list) {
         if (list.exps().isEmpty()) {
-            throw new IllegalArgumentException("SList is empty");
+            throw new InterpException("SList is empty");
         }
 
         SExp first = list.exps().get(0);
@@ -40,7 +44,7 @@ public class FauxRacketInterpreter {
             ArithExp right = (ArithExp) parse(list.exps().get(2));
             return new ArithBin(arithOpMap.get(((Atom) first).value()), left, right);
         } else {
-            throw new IllegalArgumentException("Invalid SList syntax");
+            throw new InterpException("Invalid SList syntax");
         }
     }
 
@@ -52,7 +56,7 @@ public class FauxRacketInterpreter {
             Num rightRes = (Num) interp(((ArithBin) exp).right());
             return ((ArithBin) exp).op().apply(leftRes, rightRes);
         } else {
-            throw new IllegalArgumentException("Invalid abstract syntax");
+            throw new InterpException("Invalid abstract syntax");
         }
     }
 
