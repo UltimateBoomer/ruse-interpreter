@@ -1,5 +1,5 @@
 package io.github.ultimateboomer.ruseinterpreter.model.fauxracket;
 
-public interface ArithExp extends Exp {
+public interface Exp extends AbstractSyntax {
     
 }

@@ -12,9 +12,9 @@ import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Num.class, name = "num"),
-    @JsonSubTypes.Type(value = ArithBin.class, name = "abin")
+    @JsonSubTypes.Type(value = ArithBinExp.class, name = "abin")
 })
-public interface FauxRacketAbstractSyntax {
+public interface AbstractSyntax {
     
     SExp toSExp();
 

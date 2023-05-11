@@ -15,4 +15,8 @@ public record SList(
         return joiner.toString();
     }
 
+    public static SList of(SExp... exps) {
+        return new SList(List.of(exps));
+    }
+
 }
