@@ -9,8 +9,8 @@ import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
 public record Closure(
     String var,
-    ArithExp body,
-    Map<String, ArithExp> env
+    FauxRacketAbstractSyntax body,
+    Map<String, FauxRacketAbstractSyntax> env
 ) implements FauxRacketAbstractSyntax {
 
     @Override

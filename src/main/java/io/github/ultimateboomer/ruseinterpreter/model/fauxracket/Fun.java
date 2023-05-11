@@ -8,7 +8,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
 public record Fun(
     String var,
-    ArithExp body
+    FauxRacketAbstractSyntax body
 ) implements FauxRacketAbstractSyntax {
 
     @Override

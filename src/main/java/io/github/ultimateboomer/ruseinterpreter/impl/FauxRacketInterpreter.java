@@ -54,20 +54,20 @@ public class FauxRacketInterpreter {
             return new ArithBin(arithOpMap.get(((Atom) first).value()), left, right);
         } else if (list.exps().size() == 3 && first instanceof Atom && ((Atom) first).value().equals("fun")) {
             String var = ((Atom) ((SList) list.exps().get(1)).exps().get(0)).value();
-            ArithExp body = (ArithExp) (ArithExp) parse(list.exps().get(2));
+            FauxRacketAbstractSyntax body = parse(list.exps().get(2));
             return new Fun(var, body);
         } else if (list.exps().size() == 3 && first instanceof Atom && ((Atom) first).value().equals("with")) {
             List<SExp> defs = ((SList) list.exps().get(1)).exps();
-            ArithExp result = (ArithExp) parse(list.exps().get(2));
+            FauxRacketAbstractSyntax result = parse(list.exps().get(2));
             for (SExp d : defs) {
                 String var = ((Atom) ((SList) d).exps().get(0)).value();
-                ArithExp args = (ArithExp) parse(((SList) d).exps().get(1));
+                FauxRacketAbstractSyntax args = parse(((SList) d).exps().get(1));
                 result = new App(new Fun(var, result), args);
             }
             return result;
         } else if (list.exps().size() == 2) {
             FauxRacketAbstractSyntax fun = parse(list.exps().get(0));
-            ArithExp args = (ArithExp) parse(list.exps().get(1));
+            FauxRacketAbstractSyntax args = parse(list.exps().get(1));
             return new App(fun, args);
         } else {
             throw new InterpException("Invalid SList syntax");
@@ -78,7 +78,7 @@ public class FauxRacketInterpreter {
         return interp(exp, new HashMap<>());
     }
 
-    public static FauxRacketAbstractSyntax interp(FauxRacketAbstractSyntax exp, Map<String, ArithExp> env) {
+    public static FauxRacketAbstractSyntax interp(FauxRacketAbstractSyntax exp, Map<String, FauxRacketAbstractSyntax> env) {
         if (exp instanceof Num) {
             return exp;
         } else if (exp instanceof Var) {
@@ -96,8 +96,8 @@ public class FauxRacketInterpreter {
             return ((ArithBin) exp).op().apply(leftRes, rightRes);
         } else if (exp instanceof App) {
             Closure closure = (Closure) interp(((App) exp).fun(), env);
-            ArithExp arg = (ArithExp) interp(((App) exp).arg(), env);
-            Map<String, ArithExp> newEnv = new HashMap<>(env);
+            FauxRacketAbstractSyntax arg = interp(((App) exp).arg(), env);
+            Map<String, FauxRacketAbstractSyntax> newEnv = new HashMap<>(env);
             newEnv.put(closure.var(), arg);
             return interp(closure.body(), newEnv);
         } else {
