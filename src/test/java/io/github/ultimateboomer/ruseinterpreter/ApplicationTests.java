@@ -51,6 +51,22 @@ class ApplicationTests {
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json(tr));
+
+        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "((fun (x) (+ x 1)) 2)"));
+        tr = objectMapper.writeValueAsString(new InterpResponse("3"));
+        mvc.perform(post("/api/ruse/interp")
+            .content(t)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json(tr));
+
+        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "(with ((x 2)) (+ x 3))"));
+        tr = objectMapper.writeValueAsString(new InterpResponse("5"));
+        mvc.perform(post("/api/ruse/interp")
+            .content(t)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json(tr));
     }
 
 }

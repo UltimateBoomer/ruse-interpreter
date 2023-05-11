@@ -7,9 +7,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import io.github.ultimateboomer.ruseinterpreter.impl.FauxRacketInterpreter;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.App;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBin;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithOp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Fun;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
@@ -31,7 +34,6 @@ class RuseInterpreterTests {
                     new SList(
                         List.of(new Atom("*"), new Atom("2"), new Atom("3"))),
                     new Atom("4")))));
-
     }
 
     @Test
@@ -44,6 +46,10 @@ class RuseInterpreterTests {
             ArithOp.ADD,
             new ArithBin(ArithOp.MUL, new Num(2), new Num(3)),
             new Num(4))));
+
+        assertEquals(new Num(3), FauxRacketInterpreter.interp(new App(
+            new Fun("x", new ArithBin(ArithOp.ADD, new Var("x"), new Num(1))),
+            new Num(2))));
     }
 
 }
