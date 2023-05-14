@@ -4,8 +4,8 @@ import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
 public record App(
-    AbstractSyntax fun,
-    AbstractSyntax arg
+    Exp fun,
+    Exp arg
 ) implements ArithExp {
 
     @Override

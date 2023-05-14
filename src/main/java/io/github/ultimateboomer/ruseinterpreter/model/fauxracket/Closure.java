@@ -8,9 +8,9 @@ import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
 public record Closure(
     String var,
-    AbstractSyntax body,
-    Map<String, AbstractSyntax> env
-) implements AbstractSyntax {
+    Exp body,
+    Map<String, Exp> env
+) implements Exp {
 
     @Override
     public SExp toSExp() {

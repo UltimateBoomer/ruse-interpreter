@@ -16,7 +16,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.InterpExceptionResponse;
 import io.github.ultimateboomer.ruseinterpreter.model.InterpRequest;
 import io.github.ultimateboomer.ruseinterpreter.model.InterpResponse;
 import io.github.ultimateboomer.ruseinterpreter.model.RuseLanguage;
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.AbstractSyntax;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Exp;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 
 @RestController
@@ -33,7 +33,7 @@ public class RuseInterpController {
     public InterpResponse interpRuse(@RequestBody InterpRequest data) {
         SExp exp = SExpParser.parse(data.exp());
         if (data.lang() == RuseLanguage.FAUX_RACKET) {
-            AbstractSyntax result = FauxRacketInterpreter.parse(exp);
+            Exp result = FauxRacketInterpreter.parse(exp);
             result = FauxRacketInterpreter.interp(result);
             return new InterpResponse(result.toSExp().toString());
         } else {

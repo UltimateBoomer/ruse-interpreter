@@ -3,24 +3,22 @@ package io.github.ultimateboomer.ruseinterpreter.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.AbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.App;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBinExp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBinOp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Bool;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.BoolBinExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.BoolBinOp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.BoolExp;
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBinOp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Closure;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Exp;
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Fun;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.IfExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.NotExp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
@@ -39,27 +37,22 @@ public class FauxRacketInterpreter {
         "or", BoolBinOp.OR
     );
 
-    private static final Pattern numPattern = Pattern.compile("-?[0-9]+");
-    private static final Pattern boolPattern = Pattern.compile("true|false");
-
-    public static AbstractSyntax parse(SExp exp) {
+    public static Exp parse(SExp exp) {
         if (exp instanceof Atom) {
             String value = ((Atom) exp).value();
-            if (numPattern.matcher(value).matches()) {
+            if (RuseCommon.numPattern.matcher(value).matches()) {
                 return new Num(Integer.parseInt(value));
-            } else if (boolPattern.matcher(value).matches()) {
+            } else if (RuseCommon.boolPattern.matcher(value).matches()) {
                 return new Bool(Boolean.parseBoolean(value));
             } else {
                 return new Var(value);
             }
-        } else if (exp instanceof SList) {
-            return parseSList((SList) exp);
         } else {
-            throw new InterpException("Invalid syntax");
+            return parseSList((SList) exp);
         }
     }
 
-    private static AbstractSyntax parseSList(SList list) {
+    private static Exp parseSList(SList list) {
         if (list.exps().isEmpty()) {
             throw new InterpException("SList is empty");
         }
@@ -83,31 +76,31 @@ public class FauxRacketInterpreter {
             return new IfExp(bexp, trueExp, falseExp);
         } else if (first instanceof Atom && ((Atom) first).value().equals("fun")) {
             String var = ((Atom) ((SList) list.exps().get(1)).exps().get(0)).value();
-            AbstractSyntax body = parse(list.exps().get(2));
+            Exp body = parse(list.exps().get(2));
             return new Fun(var, body);
         } else if (first instanceof Atom && ((Atom) first).value().equals("with")) {
             List<SExp> defs = ((SList) list.exps().get(1)).exps();
-            AbstractSyntax result = parse(list.exps().get(2));
+            Exp result = parse(list.exps().get(2));
             for (SExp d : defs) {
                 String var = ((Atom) ((SList) d).exps().get(0)).value();
-                AbstractSyntax args = parse(((SList) d).exps().get(1));
+                Exp args = parse(((SList) d).exps().get(1));
                 result = new App(new Fun(var, result), args);
             }
             return result;
         } else if (list.exps().size() == 2) {
-            AbstractSyntax fun = parse(list.exps().get(0));
-            AbstractSyntax args = parse(list.exps().get(1));
+            Exp fun = parse(list.exps().get(0));
+            Exp args = parse(list.exps().get(1));
             return new App(fun, args);
         } else {
-            throw new InterpException("Invalid SList syntax");
+            throw new InterpException("Invalid Faux Racket syntax");
         }
     }
 
-    public static AbstractSyntax interp(AbstractSyntax exp) {
+    public static Exp interp(Exp exp) {
         return interp(exp, new HashMap<>());
     }
 
-    private static AbstractSyntax interp(AbstractSyntax exp, Map<String, AbstractSyntax> env) {
+    private static Exp interp(Exp exp, Map<String, Exp> env) {
         if (exp instanceof Num || exp instanceof Bool) {
             return exp;
         } else if (exp instanceof Var) {
@@ -135,8 +128,8 @@ public class FauxRacketInterpreter {
             return interp(res.value() ? ((IfExp) exp).trueExp() : ((IfExp) exp).falseExp(), env);
         } else if (exp instanceof App) {
             Closure closure = (Closure) interp(((App) exp).fun(), env);
-            AbstractSyntax arg = interp(((App) exp).arg(), env);
-            Map<String, AbstractSyntax> newEnv = new HashMap<>(env);
+            Exp arg = interp(((App) exp).arg(), env);
+            Map<String, Exp> newEnv = new HashMap<>(env);
             newEnv.put(closure.var(), arg);
             return interp(closure.body(), newEnv);
         } else {

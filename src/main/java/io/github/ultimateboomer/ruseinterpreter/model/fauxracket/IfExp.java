@@ -8,7 +8,7 @@ public record IfExp(
     BoolExp bexp,
     Exp trueExp,
     Exp falseExp
-) implements AbstractSyntax {
+) implements Exp {
 
     @Override
     public SExp toSExp() {

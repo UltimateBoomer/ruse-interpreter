@@ -10,7 +10,7 @@ public record PrintStrStmt(
 
     @Override
     public SExp toSExp() {
-        return SList.of(new Atom("print"), new Atom(str));
+        return SList.of(new Atom("print"), new Atom(String.format("\"%s\"", str)));
     }
     
 }

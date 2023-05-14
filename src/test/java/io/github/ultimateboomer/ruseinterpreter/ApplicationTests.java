@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,49 +33,33 @@ class ApplicationTests {
             .andExpect(content().json(objectMapper.writeValueAsString(List.of(RuseLanguage.values()))));
     }
 
+    ResultActions expectInterp(String input, String expectedResult, RuseLanguage lang, MockMvc mvc) throws Exception {
+        String t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, input));
+        String tr = objectMapper.writeValueAsString(new InterpResponse(expectedResult));
+
+        return mvc.perform(post("/api/ruse/interp")
+            .content(t)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json(tr)); 
+    }
+
     @Test
-    void testInterpRuseApi(@Autowired MockMvc mvc) throws Exception {
-        String t, tr;
+    void testFauxRacket(@Autowired MockMvc mvc) throws Exception {
+        expectInterp("5", "5", RuseLanguage.FAUX_RACKET, mvc);
 
-        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "5"));
-        tr = objectMapper.writeValueAsString(new InterpResponse("5"));
-        mvc.perform(post("/api/ruse/interp")
-            .content(t)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(tr));
+        expectInterp("(+ (* 2 3) 4)", "10", RuseLanguage.FAUX_RACKET, mvc);
 
-        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "(+ (* 2 3) 4)"));
-        tr = objectMapper.writeValueAsString(new InterpResponse("10"));
-        mvc.perform(post("/api/ruse/interp")
-            .content(t)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(tr));
+        expectInterp("(if (and true (not false)) 1 2)", "1", RuseLanguage.FAUX_RACKET, mvc);
 
-        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "(if (and true (not false)) 1 2)"));
-        tr = objectMapper.writeValueAsString(new InterpResponse("1"));
-        mvc.perform(post("/api/ruse/interp")
-            .content(t)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(tr));
+        expectInterp("((fun (x) (+ x 1)) 2)", "3", RuseLanguage.FAUX_RACKET, mvc);
 
-        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "((fun (x) (+ x 1)) 2)"));
-        tr = objectMapper.writeValueAsString(new InterpResponse("3"));
-        mvc.perform(post("/api/ruse/interp")
-            .content(t)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(tr));
+        expectInterp("(with ((x 2)) (+ x 3))", "5", RuseLanguage.FAUX_RACKET, mvc);
+    }
 
-        t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, "(with ((x 2)) (+ x 3))"));
-        tr = objectMapper.writeValueAsString(new InterpResponse("5"));
-        mvc.perform(post("/api/ruse/interp")
-            .content(t)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(tr));
+    @Test
+    void testSIMPL(@Autowired MockMvc mvc) throws Exception {
+        expectInterp("(vars ((x 1)) (print x))", "1", RuseLanguage.SIMPL, mvc);
     }
 
 }
