@@ -17,7 +17,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
 
-class RuseInterpreterTests {
+class FauxRacketInterpreterTests {
     
     @Test
     void testParse() {

@@ -12,8 +12,11 @@ import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
+import io.github.ultimateboomer.ruseinterpreter.model.simpl.IifStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.PrintExpStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.PrintStrStmt;
+import io.github.ultimateboomer.ruseinterpreter.model.simpl.SeqStmt;
+import io.github.ultimateboomer.ruseinterpreter.model.simpl.SetStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.SkipStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.Stmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.VarDef;
@@ -63,8 +66,36 @@ public class SIMPLInterpreter {
         throw new InterpException("Invalid Faux Racket syntax");
     }
 
-    public static void interp(Stmt stmt) {
-        
+    public static void interp(VarDef stmt, StringBuilder out) {
+        Map<String, Exp> env = stmt.vars();
+        stmt.stmts().forEach(s -> interpStmt(s, env, out));
+    }
+
+    private static void interpStmt(Stmt stmt, Map<String, Exp> env, StringBuilder out) {
+        if (stmt instanceof SkipStmt) {
+            // Nothing is done
+        } else if (stmt instanceof PrintStrStmt) {
+            out.append(((PrintStrStmt) stmt).str());
+        } else if (stmt instanceof PrintExpStmt) {
+            out.append(((PrintExpStmt) stmt).toSExp().toString());
+        } else if (stmt instanceof SetStmt) {
+            String var = ((SetStmt) stmt).var();
+            if (!env.containsKey(var)) {
+                throw new InterpException("Variable not found: %s".formatted(var));
+            }
+            env.put(var, FauxRacketInterpreter.interp(((SetStmt) stmt).value()));
+        } else if (stmt instanceof SeqStmt) {
+            ((SeqStmt) stmt).stmts().forEach(s -> interpStmt(s, env, out));
+        } else if (stmt instanceof IifStmt) {
+            Bool res = (Bool) FauxRacketInterpreter.interp(((IifStmt) stmt).bexp());
+            if (res.value()) {
+                interpStmt(((IifStmt) stmt).trueStmt(), env, out);
+            } else {
+                interpStmt(((IifStmt) stmt).trueStmt(), env, out);
+            }
+        } else {
+            throw new InterpException("Invalid abstract syntax");
+        }
     }
 
 }
