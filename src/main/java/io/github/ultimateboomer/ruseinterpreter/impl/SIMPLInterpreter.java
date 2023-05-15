@@ -47,7 +47,7 @@ public class SIMPLInterpreter {
 
         if (first instanceof Atom && ((Atom) first).value().equals("vars")) {
             Map<String, Exp> vars = new HashMap<>();
-            ((SList) list.exps().get(1)).exps().stream().skip(1).forEach(e -> vars.put(((Atom) ((SList) e).exps().get(0)).value(),
+            ((SList) list.exps().get(1)).exps().stream().forEach(e -> vars.put(((Atom) ((SList) e).exps().get(0)).value(),
                 (Exp) parse(((SList) e).exps().get(1))));
             List<Stmt> stmts = list.exps().stream().skip(2).map(s -> (Stmt) parse(s)).toList();
             return new VarDef(vars, stmts);
@@ -77,7 +77,7 @@ public class SIMPLInterpreter {
         } else if (stmt instanceof PrintStrStmt) {
             out.append(((PrintStrStmt) stmt).str());
         } else if (stmt instanceof PrintExpStmt) {
-            out.append(((PrintExpStmt) stmt).toSExp().toString());
+            out.append(FauxRacketInterpreter.interp(((PrintExpStmt) stmt).exp(), env).toSExp().toString());
         } else if (stmt instanceof SetStmt) {
             String var = ((SetStmt) stmt).var();
             if (!env.containsKey(var)) {

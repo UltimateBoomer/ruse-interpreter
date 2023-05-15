@@ -34,7 +34,7 @@ class ApplicationTests {
     }
 
     ResultActions expectInterp(String input, String expectedResult, RuseLanguage lang, MockMvc mvc) throws Exception {
-        String t = objectMapper.writeValueAsString(new InterpRequest(RuseLanguage.FAUX_RACKET, input));
+        String t = objectMapper.writeValueAsString(new InterpRequest(lang, input));
         String tr = objectMapper.writeValueAsString(new InterpResponse(expectedResult));
 
         return mvc.perform(post("/api/ruse/interp")

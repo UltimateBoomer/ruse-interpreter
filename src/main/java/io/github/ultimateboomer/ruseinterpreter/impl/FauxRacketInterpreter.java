@@ -100,7 +100,7 @@ public class FauxRacketInterpreter {
         return interp(exp, new HashMap<>());
     }
 
-    private static Exp interp(Exp exp, Map<String, Exp> env) {
+    static Exp interp(Exp exp, Map<String, Exp> env) {
         if (exp instanceof Num || exp instanceof Bool) {
             return exp;
         } else if (exp instanceof Var) {
