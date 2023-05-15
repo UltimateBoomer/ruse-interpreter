@@ -12,6 +12,7 @@ import io.github.ultimateboomer.ruseinterpreter.impl.SIMPLInterpreter;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.PrintExpStmt;
+import io.github.ultimateboomer.ruseinterpreter.model.simpl.PrintStrStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.SkipStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.VarDef;
 
@@ -24,11 +25,19 @@ class SIMPLInterpreterTests {
 
         assertEquals(new VarDef(Map.of("x", new Num(2)), List.of(new PrintExpStmt(new Var("x")))),
             SIMPLInterpreter.parse(SExpParser.parse("(vars ((x 2)) (print x))")));
+
+        assertEquals(new VarDef(Map.of("x", new Num(2)), List.of(new PrintStrStmt("\n"))),
+            SIMPLInterpreter.parse(SExpParser.parse("(vars ((x 2)) (print \"\\n\"))")));
     }
 
     @Test
     void testCombined() {
         StringBuilder out = new StringBuilder();
+
+        out.setLength(0);
+        SIMPLInterpreter.interp((VarDef) SIMPLInterpreter.parse(
+            SExpParser.parse("(vars ((x 2)) (print x))")), out);
+        assertEquals("2", out.toString());
 
         out.setLength(0);
         SIMPLInterpreter.interp((VarDef) SIMPLInterpreter.parse(

@@ -3,6 +3,7 @@ package io.github.ultimateboomer.ruseinterpreter.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.AbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Bool;
@@ -55,8 +56,9 @@ public class SIMPLInterpreter {
             return new SkipStmt();
         } else if (first instanceof Atom && ((Atom) first).value().equals("print")) {
             SExp second = list.exps().get(1);
-            if (second instanceof Atom && RuseCommon.strPattern.matcher(((Atom) second).value()).matches()) {
-                String str = RuseCommon.strPattern.matcher(((Atom) second).value()).group(1);
+            Matcher matcher = RuseCommon.strPattern.matcher(((Atom) second).value());
+            if (second instanceof Atom && matcher.matches()) {
+                String str = matcher.group(1).translateEscapes();
                 return new PrintStrStmt(str);
             } else {
                 return new PrintExpStmt((Exp) parse(second));
