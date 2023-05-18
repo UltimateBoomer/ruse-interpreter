@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.AbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Bool;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.BoolExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Exp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
@@ -21,6 +22,7 @@ import io.github.ultimateboomer.ruseinterpreter.model.simpl.SetStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.SkipStmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.Stmt;
 import io.github.ultimateboomer.ruseinterpreter.model.simpl.VarDef;
+import io.github.ultimateboomer.ruseinterpreter.model.simpl.WhileStmt;
 
 public class SIMPLInterpreter {
 
@@ -46,24 +48,36 @@ public class SIMPLInterpreter {
 
         SExp first = list.exps().get(0);
 
-        if (first instanceof Atom && ((Atom) first).value().equals("vars")) {
-            Map<String, Exp> vars = new HashMap<>();
-            ((SList) list.exps().get(1)).exps().stream().forEach(e -> vars.put(((Atom) ((SList) e).exps().get(0)).value(),
-                (Exp) parse(((SList) e).exps().get(1))));
-            List<Stmt> stmts = list.exps().stream().skip(2).map(s -> (Stmt) parse(s)).toList();
-            return new VarDef(vars, stmts);
-        } else if (first instanceof Atom && ((Atom) first).value().equals("skip")) {
-            return new SkipStmt();
-        } else if (first instanceof Atom && ((Atom) first).value().equals("print")) {
-            SExp second = list.exps().get(1);
-            Matcher matcher = RuseCommon.strPattern.matcher(((Atom) second).value());
-            if (second instanceof Atom && matcher.matches()) {
-                String str = matcher.group(1).translateEscapes();
-                return new PrintStrStmt(str);
-            } else {
-                return new PrintExpStmt((Exp) parse(second));
+        if (first instanceof Atom) {
+            if (((Atom) first).value().equals("vars")) {
+                Map<String, Exp> vars = new HashMap<>();
+                ((SList) list.exps().get(1)).exps().stream().forEach(e -> vars.put(((Atom) ((SList) e).exps().get(0)).value(),
+                    (Exp) parse(((SList) e).exps().get(1))));
+                List<Stmt> stmts = list.exps().stream().skip(2).map(s -> (Stmt) parse(s)).toList();
+                return new VarDef(vars, stmts);
+            } else if (((Atom) first).value().equals("skip")) {
+                return new SkipStmt();
+            } else if (((Atom) first).value().equals("print")) {
+                SExp second = list.exps().get(1);
+                Matcher matcher = RuseCommon.strPattern.matcher(((Atom) second).value());
+                if (second instanceof Atom && matcher.matches()) {
+                    String str = matcher.group(1).translateEscapes();
+                    return new PrintStrStmt(str);
+                } else {
+                    return new PrintExpStmt((Exp) parse(second));
+                }
+            } else if (((Atom) first).value().equals("iif")) {
+                BoolExp bexp = (BoolExp) parse(list.exps().get(1));
+                Stmt trueStmt = (Stmt) parse(list.exps().get(2));
+                Stmt falseStmt = (Stmt) parse(list.exps().get(3));
+                return new IifStmt(bexp, trueStmt, falseStmt);
+            } else if (((Atom) first).value().equals("while")) {
+                BoolExp bexp = (BoolExp) parse(list.exps().get(1));
+                List<Stmt> stmts = list.exps().stream().skip(2).map(s -> (Stmt) parse(s)).toList();
+                return new WhileStmt(bexp, stmts);
             }
         }
+        
 
         throw new InterpException("Invalid Faux Racket syntax");
     }
@@ -94,6 +108,10 @@ public class SIMPLInterpreter {
                 interpStmt(((IifStmt) stmt).trueStmt(), env, out);
             } else {
                 interpStmt(((IifStmt) stmt).trueStmt(), env, out);
+            }
+        } else if (stmt instanceof WhileStmt) {
+            while (((Bool) FauxRacketInterpreter.interp(((WhileStmt) stmt).bexp())).value()) {
+                ((WhileStmt) stmt).stmts().forEach(s -> interpStmt(s, env, out));
             }
         } else {
             throw new InterpException("Invalid abstract syntax");
