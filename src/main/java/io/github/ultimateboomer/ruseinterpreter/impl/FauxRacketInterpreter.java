@@ -7,6 +7,8 @@ import java.util.Map;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.App;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBinExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithBinOp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithCmpExp;
+import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithCmpOp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.ArithExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Bool;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.BoolBinExp;
@@ -37,6 +39,14 @@ public class FauxRacketInterpreter {
         "or", BoolBinOp.OR
     );
 
+    private static final Map<String, ArithCmpOp> arithCmpOpMap = Map.of(
+        "=", ArithCmpOp.EQ,
+        "<", ArithCmpOp.LT,
+        "<=", ArithCmpOp.LE,
+        ">", ArithCmpOp.GT,
+        ">=", ArithCmpOp.GE
+    );
+
     public static Exp parse(SExp exp) {
         if (exp instanceof Atom) {
             String value = ((Atom) exp).value();
@@ -58,42 +68,49 @@ public class FauxRacketInterpreter {
         }
 
         SExp first = list.exps().get(0);
-        if (first instanceof Atom && arithOpMap.containsKey(((Atom) first).value())) {
-            Exp left = (ArithExp) parse(list.exps().get(1));
-            Exp right = (ArithExp) parse(list.exps().get(2));
-            return new ArithBinExp(arithOpMap.get(((Atom) first).value()), left, right);
-        } else if (first instanceof Atom && boolOpMap.containsKey(((Atom) first).value())) {
-            Exp left = (BoolExp) parse(list.exps().get(1));
-            Exp right = (BoolExp) parse(list.exps().get(2));
-            return new BoolBinExp(boolOpMap.get(((Atom) first).value()), left, right);
-        } else if (first instanceof Atom && ((Atom) first).value().equals("not")) {
-            BoolExp exp = (BoolExp) parse(list.exps().get(1));
-            return new NotExp(exp);
-        } else if (first instanceof Atom && ((Atom) first).value().equals("if")) {
-            BoolExp bexp = (BoolExp) parse(list.exps().get(1));
-            Exp trueExp = (Exp) parse(list.exps().get(2));
-            Exp falseExp = (Exp) parse(list.exps().get(3));
-            return new IfExp(bexp, trueExp, falseExp);
-        } else if (first instanceof Atom && ((Atom) first).value().equals("fun")) {
-            String var = ((Atom) ((SList) list.exps().get(1)).exps().get(0)).value();
-            Exp body = parse(list.exps().get(2));
-            return new Fun(var, body);
-        } else if (first instanceof Atom && ((Atom) first).value().equals("with")) {
-            List<SExp> defs = ((SList) list.exps().get(1)).exps();
-            Exp result = parse(list.exps().get(2));
-            for (SExp d : defs) {
-                String var = ((Atom) ((SList) d).exps().get(0)).value();
-                Exp args = parse(((SList) d).exps().get(1));
-                result = new App(new Fun(var, result), args);
+
+        if (first instanceof Atom) {
+            if (arithOpMap.containsKey(((Atom) first).value())) {
+                Exp left = (ArithExp) parse(list.exps().get(1));
+                Exp right = (ArithExp) parse(list.exps().get(2));
+                return new ArithBinExp(arithOpMap.get(((Atom) first).value()), left, right);
+            } else if (arithCmpOpMap.containsKey(((Atom) first).value())) {
+                Exp left = (ArithExp) parse(list.exps().get(1));
+                Exp right = (ArithExp) parse(list.exps().get(2));
+                return new ArithCmpExp(arithCmpOpMap.get(((Atom) first).value()), left, right);
+            } else if (boolOpMap.containsKey(((Atom) first).value())) {
+                Exp left = (BoolExp) parse(list.exps().get(1));
+                Exp right = (BoolExp) parse(list.exps().get(2));
+                return new BoolBinExp(boolOpMap.get(((Atom) first).value()), left, right);
+            } else if (((Atom) first).value().equals("not")) {
+                BoolExp exp = (BoolExp) parse(list.exps().get(1));
+                return new NotExp(exp);
+            } else if (((Atom) first).value().equals("if")) {
+                BoolExp bexp = (BoolExp) parse(list.exps().get(1));
+                Exp trueExp = (Exp) parse(list.exps().get(2));
+                Exp falseExp = (Exp) parse(list.exps().get(3));
+                return new IfExp(bexp, trueExp, falseExp);
+            } else if (((Atom) first).value().equals("fun")) {
+                String var = ((Atom) ((SList) list.exps().get(1)).exps().get(0)).value();
+                Exp body = parse(list.exps().get(2));
+                return new Fun(var, body);
+            } else if (((Atom) first).value().equals("with")) {
+                List<SExp> defs = ((SList) list.exps().get(1)).exps();
+                Exp result = parse(list.exps().get(2));
+                for (SExp d : defs) {
+                    String var = ((Atom) ((SList) d).exps().get(0)).value();
+                    Exp args = parse(((SList) d).exps().get(1));
+                    result = new App(new Fun(var, result), args);
+                }
+                return result;
             }
-            return result;
         } else if (list.exps().size() == 2) {
             Exp fun = parse(list.exps().get(0));
             Exp args = parse(list.exps().get(1));
             return new App(fun, args);
-        } else {
-            throw new InterpException("Invalid Faux Racket syntax");
         }
+
+        throw new InterpException(String.format("Invalid Faux Racket syntax: %s", list));
     }
 
     public static Exp interp(Exp exp) {
@@ -115,11 +132,15 @@ public class FauxRacketInterpreter {
         } else if (exp instanceof ArithBinExp) {
             Num leftRes = (Num) interp(((ArithBinExp) exp).left(), env);
             Num rightRes = (Num) interp(((ArithBinExp) exp).right(), env);
-            return ((ArithBinExp) exp).op().apply(leftRes, rightRes);
+            return new Num(((ArithBinExp) exp).op().apply(leftRes.value(), rightRes.value()));
+        } else if (exp instanceof ArithCmpExp) {
+            Num leftRes = (Num) interp(((ArithCmpExp) exp).left(), env);
+            Num rightRes = (Num) interp(((ArithCmpExp) exp).right(), env);
+            return new Bool(((ArithCmpExp) exp).op().apply(leftRes.value(), rightRes.value()));
         } else if (exp instanceof BoolBinExp) {
             Bool leftRes = (Bool) interp(((BoolBinExp) exp).left(), env);
             Bool rightRes = (Bool) interp(((BoolBinExp) exp).right(), env);
-            return ((BoolBinExp) exp).op().apply(leftRes, rightRes);
+            return new Bool(((BoolBinExp) exp).op().apply(leftRes.value(), rightRes.value()));
         } else if (exp instanceof NotExp) {
             Bool res = (Bool) interp(((NotExp) exp).exp(), env);
             return new Bool(!res.value());

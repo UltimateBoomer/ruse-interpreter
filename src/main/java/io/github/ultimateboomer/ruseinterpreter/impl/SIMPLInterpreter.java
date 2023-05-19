@@ -9,8 +9,6 @@ import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.AbstractSyntax;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Bool;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.BoolExp;
 import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Exp;
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Num;
-import io.github.ultimateboomer.ruseinterpreter.model.fauxracket.Var;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.Atom;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SExp;
 import io.github.ultimateboomer.ruseinterpreter.model.sexp.SList;
@@ -27,18 +25,11 @@ import io.github.ultimateboomer.ruseinterpreter.model.simpl.WhileStmt;
 public class SIMPLInterpreter {
 
     public static AbstractSyntax parse(SExp exp) {
-        if (exp instanceof Atom) {
-            String value = ((Atom) exp).value();
-            if (RuseCommon.numPattern.matcher(value).matches()) {
-                return new Num(Integer.parseInt(value));
-            } else if (RuseCommon.boolPattern.matcher(value).matches()) {
-                return new Bool(Boolean.parseBoolean(value));
-            } else {
-                return new Var(value);
-            }
-        } else {
+        if (exp instanceof SList) {
             return parseSList((SList) exp);
         }
+
+        throw new InterpException(String.format("Invalid SIMPL syntax: %s", exp));
     }
 
     private static AbstractSyntax parseSList(SList list) {
@@ -52,7 +43,7 @@ public class SIMPLInterpreter {
             if (((Atom) first).value().equals("vars")) {
                 Map<String, Exp> vars = new HashMap<>();
                 ((SList) list.exps().get(1)).exps().stream().forEach(e -> vars.put(((Atom) ((SList) e).exps().get(0)).value(),
-                    (Exp) parse(((SList) e).exps().get(1))));
+                    (Exp) FauxRacketInterpreter.parse(((SList) e).exps().get(1))));
                 List<Stmt> stmts = list.exps().stream().skip(2).map(s -> (Stmt) parse(s)).toList();
                 return new VarDef(vars, stmts);
             } else if (((Atom) first).value().equals("skip")) {
@@ -64,7 +55,7 @@ public class SIMPLInterpreter {
                     String str = matcher.group(1).translateEscapes();
                     return new PrintStrStmt(str);
                 } else {
-                    return new PrintExpStmt((Exp) parse(second));
+                    return new PrintExpStmt((Exp) FauxRacketInterpreter.parse(second));
                 }
             } else if (((Atom) first).value().equals("iif")) {
                 BoolExp bexp = (BoolExp) parse(list.exps().get(1));
@@ -72,14 +63,18 @@ public class SIMPLInterpreter {
                 Stmt falseStmt = (Stmt) parse(list.exps().get(3));
                 return new IifStmt(bexp, trueStmt, falseStmt);
             } else if (((Atom) first).value().equals("while")) {
-                BoolExp bexp = (BoolExp) parse(list.exps().get(1));
+                BoolExp bexp = (BoolExp) FauxRacketInterpreter.parse(list.exps().get(1));
                 List<Stmt> stmts = list.exps().stream().skip(2).map(s -> (Stmt) parse(s)).toList();
                 return new WhileStmt(bexp, stmts);
+            } else if (((Atom) first).value().equals("set")) {
+                String var = ((Atom) list.exps().get(1)).value();
+                Exp value = (Exp) FauxRacketInterpreter.parse(list.exps().get(2));
+                return new SetStmt(var, value);
             }
         }
         
 
-        throw new InterpException("Invalid Faux Racket syntax");
+        throw new InterpException(String.format("Invalid SIMPL syntax: %s", list));
     }
 
     public static void interp(VarDef stmt, StringBuilder out) {
@@ -90,32 +85,39 @@ public class SIMPLInterpreter {
     private static void interpStmt(Stmt stmt, Map<String, Exp> env, StringBuilder out) {
         if (stmt instanceof SkipStmt) {
             // Nothing is done
+            return;
         } else if (stmt instanceof PrintStrStmt) {
             out.append(((PrintStrStmt) stmt).str());
+            return;
         } else if (stmt instanceof PrintExpStmt) {
             out.append(FauxRacketInterpreter.interp(((PrintExpStmt) stmt).exp(), env).toSExp().toString());
+            return;
         } else if (stmt instanceof SetStmt) {
             String var = ((SetStmt) stmt).var();
             if (!env.containsKey(var)) {
                 throw new InterpException("Variable not found: %s".formatted(var));
             }
-            env.put(var, FauxRacketInterpreter.interp(((SetStmt) stmt).value()));
+            env.put(var, FauxRacketInterpreter.interp(((SetStmt) stmt).value(), env));
+            return;
         } else if (stmt instanceof SeqStmt) {
             ((SeqStmt) stmt).stmts().forEach(s -> interpStmt(s, env, out));
+            return;
         } else if (stmt instanceof IifStmt) {
-            Bool res = (Bool) FauxRacketInterpreter.interp(((IifStmt) stmt).bexp());
+            Bool res = (Bool) FauxRacketInterpreter.interp(((IifStmt) stmt).bexp(), env);
             if (res.value()) {
                 interpStmt(((IifStmt) stmt).trueStmt(), env, out);
             } else {
                 interpStmt(((IifStmt) stmt).trueStmt(), env, out);
             }
+            return;
         } else if (stmt instanceof WhileStmt) {
-            while (((Bool) FauxRacketInterpreter.interp(((WhileStmt) stmt).bexp())).value()) {
+            while (((Bool) FauxRacketInterpreter.interp(((WhileStmt) stmt).bexp(), env)).value()) {
                 ((WhileStmt) stmt).stmts().forEach(s -> interpStmt(s, env, out));
             }
-        } else {
-            throw new InterpException("Invalid abstract syntax");
+            return;
         }
+
+        throw new InterpException(String.format("Invalid SIMPL abstract syntax: %s", stmt));
     }
 
 }

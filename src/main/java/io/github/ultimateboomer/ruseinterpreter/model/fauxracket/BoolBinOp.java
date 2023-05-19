@@ -2,30 +2,30 @@ package io.github.ultimateboomer.ruseinterpreter.model.fauxracket;
 
 import java.util.function.BiFunction;
 
-public enum BoolBinOp implements BiFunction<Bool, Bool, Bool> {
+public enum BoolBinOp implements BiFunction<Boolean, Boolean, Boolean> {
     
     AND("and") {
         @Override
-        public Bool apply(Bool t, Bool u) {
-            return new Bool(t.value() && u.value());
+        public Boolean apply(Boolean t, Boolean u) {
+            return t && u;
         }
     },
     OR("or") {
         @Override
-        public Bool apply(Bool t, Bool u) {
-            return new Bool(t.value() || u.value());
+        public Boolean apply(Boolean t, Boolean u) {
+            return t || u;
         }
     };
 
     private final String name;
 
-    private BoolBinOp(String string) {
-        this.name = string;
+    private BoolBinOp(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return name;
+        return this.name;
     }
 
 }

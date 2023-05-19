@@ -41,8 +41,9 @@ class SIMPLInterpreterTests {
 
         out.setLength(0);
         SIMPLInterpreter.interp((VarDef) SIMPLInterpreter.parse(
-            SExpParser.parse("(vars ((x 2)) (print x))")), out);
-        assertEquals("2", out.toString());
+            SExpParser.parse("(vars ((x 5)) (while (> x 0) (print x) (set x (- x 1))))")), out);
+        assertEquals("54321", out.toString());
+        
     }
 
 }

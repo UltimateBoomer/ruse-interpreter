@@ -2,30 +2,30 @@ package io.github.ultimateboomer.ruseinterpreter.model.fauxracket;
 
 import java.util.function.BiFunction;
 
-public enum ArithBinOp implements BiFunction<Num, Num, Num> {
+public enum ArithBinOp implements BiFunction<Integer, Integer, Integer> {
 
     ADD("+") {
         @Override
-        public Num apply(Num arg0, Num arg1) {
-            return new Num(arg0.value() + arg1.value());
+        public Integer apply(Integer arg0, Integer arg1) {
+            return arg0 + arg1;
         }
     },
     SUB("-") {
         @Override
-        public Num apply(Num arg0, Num arg1) {
-            return new Num(arg0.value() - arg1.value());
+        public Integer apply(Integer arg0, Integer arg1) {
+            return arg0 - arg1;
         }
     },
     MUL("*") {
         @Override
-        public Num apply(Num arg0, Num arg1) {
-            return new Num(arg0.value() * arg1.value());
+        public Integer apply(Integer arg0, Integer arg1) {
+            return arg0 * arg1;
         }
     },
     DIV("/") {
         @Override
-        public Num apply(Num arg0, Num arg1) {
-            return new Num(arg0.value() / arg1.value());
+        public Integer apply(Integer arg0, Integer arg1) {
+            return arg0 / arg1;
         }
     };
 
