@@ -50,13 +50,16 @@ public class SIMPLInterpreter {
                 return new SkipStmt();
             } else if (((Atom) first).value().equals("print")) {
                 SExp second = list.exps().get(1);
-                Matcher matcher = RuseCommon.strPattern.matcher(((Atom) second).value());
-                if (second instanceof Atom && matcher.matches()) {
-                    String str = matcher.group(1).translateEscapes();
-                    return new PrintStrStmt(str);
-                } else {
-                    return new PrintExpStmt((Exp) FauxRacketInterpreter.parse(second));
+                
+                if (second instanceof Atom) {
+                    Matcher matcher = RuseCommon.strPattern.matcher(((Atom) second).value());
+                    if (matcher.matches()) {
+                        String str = matcher.group(1).translateEscapes();
+                        return new PrintStrStmt(str);
+                    }
                 }
+
+                return new PrintExpStmt((Exp) FauxRacketInterpreter.parse(second));
             } else if (((Atom) first).value().equals("iif")) {
                 BoolExp bexp = (BoolExp) parse(list.exps().get(1));
                 Stmt trueStmt = (Stmt) parse(list.exps().get(2));
