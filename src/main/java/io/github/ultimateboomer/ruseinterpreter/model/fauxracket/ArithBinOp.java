@@ -27,7 +27,13 @@ public enum ArithBinOp implements BiFunction<Integer, Integer, Integer> {
         public Integer apply(Integer arg0, Integer arg1) {
             return arg0 / arg1;
         }
-    };
+    },
+    MOD("%") {
+        @Override
+        public Integer apply(Integer arg0, Integer arg1) {
+            return arg0 % arg1;
+        }
+    };;
 
     private final String name;
 

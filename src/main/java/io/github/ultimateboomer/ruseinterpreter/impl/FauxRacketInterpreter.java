@@ -31,7 +31,10 @@ public class FauxRacketInterpreter {
         "+", ArithBinOp.ADD,
         "-", ArithBinOp.SUB,
         "*", ArithBinOp.MUL,
-        "/", ArithBinOp.DIV
+        "/", ArithBinOp.DIV,
+        "div", ArithBinOp.DIV,
+        "%", ArithBinOp.MOD,
+        "mod", ArithBinOp.MOD
     );
 
     private static final Map<String, BoolBinOp> boolOpMap = Map.of(
