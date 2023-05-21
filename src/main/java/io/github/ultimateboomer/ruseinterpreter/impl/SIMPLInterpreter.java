@@ -61,7 +61,7 @@ public class SIMPLInterpreter {
 
                 return new PrintExpStmt((Exp) FauxRacketInterpreter.parse(second));
             } else if (((Atom) first).value().equals("iif")) {
-                BoolExp bexp = (BoolExp) parse(list.exps().get(1));
+                BoolExp bexp = (BoolExp) FauxRacketInterpreter.parse(list.exps().get(1));
                 Stmt trueStmt = (Stmt) parse(list.exps().get(2));
                 Stmt falseStmt = (Stmt) parse(list.exps().get(3));
                 return new IifStmt(bexp, trueStmt, falseStmt);
@@ -110,7 +110,7 @@ public class SIMPLInterpreter {
             if (res.value()) {
                 interpStmt(((IifStmt) stmt).trueStmt(), env, out);
             } else {
-                interpStmt(((IifStmt) stmt).trueStmt(), env, out);
+                interpStmt(((IifStmt) stmt).falseStmt(), env, out);
             }
             return;
         } else if (stmt instanceof WhileStmt) {

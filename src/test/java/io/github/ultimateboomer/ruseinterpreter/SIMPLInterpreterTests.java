@@ -46,6 +46,16 @@ class SIMPLInterpreterTests {
 
         out.setLength(0);
         SIMPLInterpreter.interp((VarDef) SIMPLInterpreter.parse(
+            SExpParser.parse("(vars ((x 5)) (iif (> x 3) (print \"t\") (print \"f\")))")), out);
+        assertEquals("t", out.toString());
+
+        out.setLength(0);
+        SIMPLInterpreter.interp((VarDef) SIMPLInterpreter.parse(
+            SExpParser.parse("(vars ((x 5)) (iif (< x 3) (print \"t\") (print \"f\")))")), out);
+        assertEquals("f", out.toString());
+
+        out.setLength(0);
+        SIMPLInterpreter.interp((VarDef) SIMPLInterpreter.parse(
             SExpParser.parse("(vars ((x 5)) (while (> x 0) (print x) (set x (- x 1))))")), out);
         assertEquals("54321", out.toString());
         
